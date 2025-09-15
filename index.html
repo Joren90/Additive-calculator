@@ -8,11 +8,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- ** VECTOR PDF LIBRARIES ** -->
+    <!-- jsPDF Core Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- jsPDF AutoTable Plugin for vector tables -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
+        /* --- LAB STYLE THEME --- */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #e0f2fe;
-            color: #1e3a8a;
+            background-color: #f3f4f6; /* Light gray background */
+            color: #1f2937; /* Darker gray text */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -23,17 +29,18 @@
         .calculator-card {
             background-color: white;
             padding: 2.5rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             width: 100%;
             max-width: 900px;
             text-align: center;
         }
         .title {
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 2.25rem;
+            font-weight: 600;
             margin-bottom: 0.5rem;
-            color: #1e40af;
+            color: #111827; /* Near black */
         }
         .subtitle {
             font-size: 1.125rem;
@@ -58,66 +65,66 @@
             display: block;
             font-size: 0.875rem;
             font-weight: 500;
-            color: #3b82f6;
+            color: #374151;
             margin-bottom: 0.5rem;
         }
-        input {
+        input, select {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid #d1d5db;
-            border-radius: 0.75rem;
+            border-radius: 0.5rem; /* Sharper corners */
             font-size: 1rem;
-            color: #334155;
+            color: #1f2937;
+            background-color: #f9fafb;
             transition: all 0.2s;
         }
         input:focus {
             outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.4);
+            border-color: #3b82f6; /* Accent color on focus */
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
         }
         .btn {
-            background-image: linear-gradient(to right, #60a5fa, #3b82f6);
+            background-color: #374151; /* Dark gray button */
             color: white;
             font-weight: 600;
             padding: 0.75rem 2rem;
-            border-radius: 0.75rem;
+            border-radius: 0.5rem;
             border: none;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s;
         }
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            background-color: #1f2937; /* Darker on hover */
         }
         .btn:disabled {
-            background-image: linear-gradient(to right, #9ca3af, #6b7280);
+            background-color: #9ca3af;
             cursor: not-allowed;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
-            border-radius: 0.75rem;
+            border-radius: 0.5rem;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            box-shadow: none;
             text-align: center;
         }
         th, td {
-            padding: 0.5rem;
+            padding: 0.75rem; /* More padding for readability */
             text-align: center;
             border: 1px solid #e5e7eb;
         }
         th {
-            background-color: #eff6ff;
+            background-color: #f9fafb;
             font-weight: 600;
-            color: #1e40af;
+            color: #111827;
         }
         tbody tr:nth-child(odd) {
-            background-color: #f9fafb;
+            background-color: white;
         }
         tbody tr:nth-child(even) {
-            background-color: white;
+            background-color: #f9fafb;
         }
         .note {
             margin-top: 1.5rem;
@@ -135,16 +142,18 @@
         }
         .protocol-content h3 {
             font-size: 1.5rem;
-            font-weight: 700;
+            font-weight: 600;
             margin-top: 2rem;
             margin-bottom: 0.5rem;
-            color: #1e40af;
+            color: #111827;
+            border-bottom: 1px solid #d1d5db;
+            padding-bottom: 0.25rem;
         }
         .protocol-content h4 {
             font-size: 1.25rem;
             font-weight: 600;
             margin-top: 1.5rem;
-            color: #3b82f6;
+            color: #374151;
         }
         .protocol-content p {
             margin-bottom: 1rem;
@@ -169,8 +178,8 @@
             gap: 0.5rem;
         }
         .counter-btn {
-            background-color: #dbeafe;
-            color: #3b82f6;
+            background-color: #e5e7eb;
+            color: #374151;
             width: 2.5rem;
             height: 2.5rem;
             border-radius: 0.5rem;
@@ -183,7 +192,7 @@
             transition: background-color 0.2s;
         }
         .counter-btn:hover {
-            background-color: #bfdbfe;
+            background-color: #d1d5db;
         }
 
         .toggle-container {
@@ -232,7 +241,7 @@
         }
 
         input:checked + .slider {
-            background-color: #2196F3;
+            background-color: #3b82f6;
         }
 
         input:checked + .slider:before {
@@ -258,22 +267,22 @@
 
         <div id="calculator-tab" class="tab-content">
             <div class="border rounded-xl p-4 mb-4">
-                <div class="input-grid !grid-cols-2">
-                    <div class="input-group">
-                        <label for="wetBCMass">BC slurry volume (mL):</label>
-                        <input type="number" id="wetBCMass" value="100" class="rounded-lg input-obtrusive" disabled>
-                    </div>
-                    <div class="input-group">
-                        <label for="bcCellulosePercent">Wet BC cellulose percentage (%):</label>
-                        <input type="number" id="bcCellulosePercent" value="2" class="rounded-lg input-obtrusive" disabled>
-                    </div>
-                </div>
                 <div class="toggle-container">
-                    <span>Edit inputs</span>
+                    <span>Change protocol variables</span>
                     <label class="switch">
                         <input type="checkbox" id="editToggle" onchange="toggleEdit()">
                         <span class="slider"></span>
                     </label>
+                </div>
+                <div id="protocolVarsContainer" class="input-grid !grid-cols-2 mt-4 hidden">
+                    <div class="input-group">
+                        <label for="wetBCMass">Wet BC slurry volume (mL):</label>
+                        <input type="number" id="wetBCMass" value="100" class="rounded-lg">
+                    </div>
+                    <div class="input-group">
+                        <label for="bcCellulosePercent">Wet BC cellulose percentage (%):</label>
+                        <input type="number" id="bcCellulosePercent" value="2" class="rounded-lg">
+                    </div>
                 </div>
             </div>
 
@@ -288,7 +297,7 @@
                         </div>
                     </div>
                     <div class="input-group">
-                        <label for="bcWaterRatios">BC:Water ratio (1:0, 1:1, 1:4):</label>
+                        <label for="bcWaterRatios">BC:Water ratios (comma-separated, e.g., 1:0, 1:1, 1:4):</label>
                         <input type="text" id="bcWaterRatios" value="1:0, 1:1" class="rounded-lg">
                     </div>
                 </div>
@@ -316,7 +325,18 @@
                     </p>
                 </div>
             </div>
-            <button class="btn w-full mt-8" onclick="showCalculator()">Back to Calculator</button>
+            <div class="flex space-x-4 mt-8 justify-center items-center">
+                <button class="btn w-1/2" onclick="showCalculator()">Back to Calculator</button>
+                <div class="flex items-center space-x-2">
+                    <button class="btn" onclick="downloadProtocol()">Download</button>
+                    <label for="downloadFileType" class="sr-only">File Type</label>
+                    <select id="downloadFileType" class="px-4 py-2 border rounded-lg">
+                        <option value="pdf" selected>PDF</option>
+                        <option value="html">HTML</option>
+                        <option value="txt">Text</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -344,20 +364,8 @@
         }
 
         function toggleEdit() {
-            const wetBCMassInput = document.getElementById('wetBCMass');
-            const bcCellulosePercentInput = document.getElementById('bcCellulosePercent');
-            const isEnabled = !wetBCMassInput.disabled;
-            
-            wetBCMassInput.disabled = isEnabled;
-            bcCellulosePercentInput.disabled = isEnabled;
-
-            if (isEnabled) {
-                wetBCMassInput.classList.add('input-obtrusive');
-                bcCellulosePercentInput.classList.add('input-obtrusive');
-            } else {
-                wetBCMassInput.classList.remove('input-obtrusive');
-                bcCellulosePercentInput.classList.remove('input-obtrusive');
-            }
+            const container = document.getElementById('protocolVarsContainer');
+            container.classList.toggle('hidden');
         }
 
         function updateAdditiveCount(change) {
@@ -453,7 +461,7 @@
         function createSampleName(additiveData, combo, ratio = '') {
             const nameParts = combo.map((val, i) => {
                 const firstLetter = additiveData[i].name.trim().charAt(0).toUpperCase();
-                return `${firstLetter}${val.toFixed(0).replace(/\.0+$/,'')}`;
+                return `${firstLetter}${val.toString().replace(/\.0+$/,'')}`;
             });
             const additiveName = nameParts.join('_');
             
@@ -551,12 +559,15 @@
             });
 
             protocolHTML += `
-                <p>Based on your inputs, here is a simplified protocol for preparing your samples. The approach is to first create a 1:0 mix for each unique dry composition and then dilute it with water to achieve the other BC:Water ratios.</p>
-                <p class="note">Remember: These values are for a ${wetBCMass} mL total final volume. If you need a different final volume, scale all values proportionally.</p>
+                <p><strong>Calculations:</strong></p>
+                <p class="note">These values are for a ${wetBCMass} mL total final volume. If you need a different final volume, scale all values proportionally. This protocol assumes a slurry density of 1 g/mL.</p>
                 
-                <h3>Step 1: Prepare 1:0 Mixes</h3>
-                <p>For each dry composition, create a single 1:0 mix. This will serve as the starting point for all other dilutions.</p>
-                
+                <h3>Step 1: Prepare Master BC Slurry</h3>
+                <p>The total dry mass of cellulose in ${wetBCMass} mL of your slurry is <strong>${(wetBCMass * (bcCellulosePercent / 100)).toFixed(2)} g</strong>. This is your starting point for all sample preparations.</p>
+
+                <h3>Step 2: Prepare 1:0 Mixes</h3>
+                <p>For each unique dry composition, create a 1:0 mix. This serves as a stock solution for all other dilutions.</p>
+                <div class="space-y-4">
             `;
             
             const dryCelluloseMassForMasterBatch = wetBCMass * (bcCellulosePercent / 100);
@@ -576,7 +587,7 @@
                 const sampleName = createSampleName(additiveData, combo);
 
                 protocolHTML += `
-                    <div>
+                    <div class="protocol-section">
                         <table class="protocol-table my-4">
                             <thead>
                                 <tr>
@@ -607,71 +618,207 @@
             
             protocolHTML += `</div>`;
 
-            if (bcWaterRatios.length > 0) {
+            // --- CONSOLIDATED DILUTION STEP ---
+            if (bcWaterRatios.filter(r => r !== '1:0').length > 0) {
                 protocolHTML += `
-                    <h3 class="mt-8">Step 2: Dilute 1:0 Mixes for Other Ratios</h3>
-                    <p>Use the tables below to find the correct amount of 1:0 mix and water needed for each dilution ratio.</p>
-                    <div class="space-y-8">
+                    <h3 class="mt-8">Step 3: Prepare Final Dilutions</h3>
+                    <p>For <strong>each</strong> 1:0 mix created in Step 2, use the following table to prepare the final diluted samples. The amounts are the same for all sample compositions.</p>
+                    <table class="protocol-table">
+                        <thead>
+                            <tr>
+                                <th>Final BC:Water Ratio</th>
+                                <th>1:0 Mix (g)</th>
+                                <th>Added Water (g)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                 `;
-                
-                uniqueDryCompositions.forEach(comboStr => {
-                    const combo = JSON.parse(comboStr);
-                    const bcPercent = 100 - combo.reduce((sum, val) => sum + val, 0);
 
-                    if (bcPercent <= 0) {
-                        return;
+                bcWaterRatios.forEach(ratioStr => {
+                    const parts = ratioStr.split(':').map(s => parseFloat(s.trim()));
+                    const bcPart = parts[0];
+                    const waterPart = parts[1];
+                    const totalParts = bcPart + waterPart;
+
+                    if (ratioStr === '1:0' || isNaN(bcPart) || isNaN(waterPart) || totalParts === 0) {
+                        return; // Skip the 1:0 mix as it's the stock
                     }
 
-                    const sampleName = createSampleName(additiveData, combo);
+                    const mixMassNeeded = wetBCMass * (bcPart / totalParts);
+                    const addedWaterMass = wetBCMass - mixMassNeeded;
 
                     protocolHTML += `
-                        <div>
-                            <h4>For the ${sampleName} sample:</h4>
-                            <table class="protocol-table">
-                                <thead>
-                                    <tr>
-                                        <th>BC:Water ratio</th>
-                                        <th>1:0 mix (g)</th>
-                                        <th>Water (g)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                        `;
-                    
-                    bcWaterRatios.forEach(ratioStr => {
-                        const parts = ratioStr.split(':').map(s => parseFloat(s.trim()));
-                        const bcPart = parts[0];
-                        const waterPart = parts[1];
-                        const totalParts = bcPart + waterPart;
-
-                        if (ratioStr === '1:0' || isNaN(bcPart) || isNaN(waterPart) || totalParts === 0) {
-                            return;
-                        }
-
-                        const totalDilutedSlurryMass = wetBCMass * (bcPart / totalParts);
-                        const mixMassNeeded = totalDilutedSlurryMass;
-                        const addedWaterMass = wetBCMass - mixMassNeeded;
-
-                        protocolHTML += `
                             <tr>
                                 <td>${ratioStr}</td>
                                 <td>${mixMassNeeded.toFixed(2)}</td>
                                 <td>${addedWaterMass.toFixed(2)}</td>
                             </tr>
-                        `;
-                    });
-
-                    protocolHTML += `
-                                </tbody>
-                            </table>
-                        </div>
                     `;
                 });
-                
-                protocolHTML += `</div>`;
+
+                protocolHTML += `
+                        </tbody>
+                    </table>
+                `;
             }
 
             document.getElementById('protocol-output').innerHTML = protocolHTML;
+        }
+
+        function downloadProtocol() {
+            const fileType = document.getElementById('downloadFileType').value;
+            const protocolContentElement = document.getElementById('protocol-output');
+
+            if (fileType === 'pdf') {
+                // --- NATIVE VECTOR PDF GENERATION ---
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const margin = 15;
+                const contentWidth = doc.internal.pageSize.getWidth() - margin * 2;
+                let y = margin; // Y-cursor for the current page
+
+                const checkPageBreak = (elementHeight) => {
+                    if (y + elementHeight > doc.internal.pageSize.getHeight() - margin) {
+                        doc.addPage();
+                        y = margin;
+                    }
+                };
+
+                const elements = Array.from(protocolContentElement.children);
+                
+                // PDF Styles for this theme (Forced Black & White)
+                const styles = {
+                    h3Color: '#000000',
+                    pColor: '#000000',
+                    tableHeadFill: '#f0f0f0',
+                    tableHeadText: '#000000'
+                };
+
+                for (const element of elements) {
+                    const tagName = element.tagName.toUpperCase();
+                    
+                    if (tagName === 'H3') {
+                        checkPageBreak(12);
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(16);
+                        doc.setTextColor(styles.h3Color);
+                        doc.text(element.innerText, margin, y);
+                        y += 12;
+                    } else if (tagName === 'P') {
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(10);
+                        doc.setTextColor(styles.pColor);
+                        const textLines = doc.splitTextToSize(element.innerText, contentWidth);
+                        const textHeight = textLines.length * 5; // Approximate height
+                        checkPageBreak(textHeight);
+                        doc.text(textLines, margin, y);
+                        y += textHeight + 2;
+                    } else if (tagName === 'DIV' && element.classList.contains('space-y-4')) {
+                        const tableSections = Array.from(element.children);
+                        for(const section of tableSections) {
+                            const tableEl = section.querySelector('table');
+                            if (tableEl) {
+                                doc.autoTable({
+                                    html: tableEl,
+                                    startY: y,
+                                    margin: { left: margin, right: margin },
+                                    theme: 'grid',
+                                    headStyles: {
+                                        fillColor: styles.tableHeadFill,
+                                        textColor: styles.tableHeadText,
+                                        fontStyle: 'bold'
+                                    }
+                                });
+                                y = doc.autoTable.previous.finalY + 6;
+                            }
+                        }
+                    } else if (tagName === 'TABLE') {
+                        doc.autoTable({
+                            html: element,
+                            startY: y,
+                            margin: { left: margin, right: margin },
+                            theme: 'grid',
+                            headStyles: {
+                                fillColor: styles.tableHeadFill,
+                                textColor: styles.tableHeadText,
+                                fontStyle: 'bold'
+                            }
+                        });
+                        y = doc.autoTable.previous.finalY + 6;
+                    }
+                }
+                
+                doc.save('lab_protocol.pdf');
+
+            } else if (fileType === 'html') {
+                const protocolContent = protocolContentElement.innerHTML;
+                const createFullHTML = (content) => `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Bacterial Cellulose Additive Protocol</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.5; color: #333333; box-sizing: border-box; padding: 20px; }
+                        h1, h3, h4 { color: #111827; font-weight: bold; }
+                        h1 { font-size: 24pt; text-align: center; margin-bottom: 20px; }
+                        h3 { font-size: 16pt; margin-top: 25px; border-bottom: 1px solid #dddddd; padding-bottom: 5px; }
+                        h4 { font-size: 14pt; margin-top: 20px; color: #374151; }
+                        p { margin-bottom: 10px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
+                        .protocol-table { max-width: 500px; margin-left: auto; margin-right: auto; }
+                        th, td { padding: 8px; text-align: left; border: 1px solid #cccccc; }
+                        th { background-color: #f9fafb; font-weight: bold; }
+                        .note { font-style: italic; color: #6b7280; font-size: 9pt; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Bacterial Cellulose Additive Protocol</h1>
+                    ${content}
+                </body>
+                </html>
+                `;
+                const fullHTML = createFullHTML(protocolContent);
+                const blob = new Blob([fullHTML], { type: 'text/html' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'lab_protocol.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+
+            } else if (fileType === 'txt') {
+                // Rebuild the text content with spacing between elements
+                const textParts = [];
+                const topLevelElements = Array.from(protocolContentElement.children);
+                
+                for (const element of topLevelElements) {
+                    // If the element is the container for the Step 2 tables, process its children individually
+                    if (element.classList.contains('space-y-4')) {
+                        const nestedElements = Array.from(element.children);
+                        nestedElements.forEach(nestedEl => textParts.push(nestedEl.innerText));
+                    } else {
+                        // Otherwise, add the top-level element (h3, p, final table) directly
+                        textParts.push(element.innerText);
+                    }
+                }
+
+                const protocolText = textParts.join('\n\n');
+                const blob = new Blob([protocolText], { type: 'text/plain' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'lab_protocol.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(a.href);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', generateAdditiveFields);
@@ -679,3 +826,5 @@
 
 </body>
 </html>
+
+
