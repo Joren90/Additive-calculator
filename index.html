@@ -311,11 +311,11 @@
                     </div>
                     <div id="protocolVarsContainer" class="input-grid !grid-cols-2 mt-4 hidden">
                         <div class="input-group">
-                            <label for="wetBCMass">Wet BC slurry volume (mL):</label>
+                            <label for="wetBCMass">Wet slurry volume (mL):</label>
                             <input type="number" id="wetBCMass" value="100" class="rounded-lg">
                         </div>
                         <div class="input-group">
-                            <label for="bcCellulosePercent">Wet BC cellulose percentage (%):</label>
+                            <label for="bcCellulosePercent">Wet slurry solids percentage (%):</label>
                             <input type="number" id="bcCellulosePercent" value="2" class="rounded-lg">
                         </div>
                     </div>
@@ -332,7 +332,7 @@
                             </div>
                         </div>
                         <div class="input-group">
-                            <label for="bcWaterRatios">BC:Water ratios (comma-separated, e.g., 1:0, 1:1, 1:4):</label>
+                            <label for="bcWaterRatios">Water ratio (comma-separated, e.g., 1:0, 1:1, 1:4):</label>
                             <input type="text" id="bcWaterRatios" value="1:0, 1:1" class="rounded-lg">
                         </div>
                     </div>
@@ -509,7 +509,7 @@
             const numAdditives = parseInt(document.getElementById('numAdditives').value);
             
             if (isNaN(wetBCMass) || wetBCMass <= 0 || isNaN(bcCellulosePercent) || bcCellulosePercent <= 0) {
-                showMessage("Please enter valid positive numbers for Wet BC slurry volume and Wet BC cellulose percentage.");
+                showMessage("Please enter valid positive numbers for Wet slurry volume and Wet slurry solids percentage.");
                 return;
             }
 
