@@ -19,12 +19,20 @@
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6; /* Light gray background */
             color: #1f2937; /* Darker gray text */
+            margin: 0;
+        }
+        .main-container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 2rem;
             box-sizing: border-box;
+            transition: filter 0.3s ease-in-out;
+        }
+        .main-container.blurred {
+            filter: blur(8px);
+            pointer-events: none;
         }
         .calculator-card {
             background-color: white;
@@ -35,6 +43,25 @@
             width: 100%;
             max-width: 900px;
             text-align: center;
+        }
+        /* --- ACCESS GATE STYLES --- */
+        #access-gate-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(17, 24, 39, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        #access-gate-modal {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
         .title {
             font-size: 2.25rem;
@@ -77,6 +104,7 @@
             color: #1f2937;
             background-color: #f9fafb;
             transition: all 0.2s;
+            box-sizing: border-box;
         }
         input:focus {
             outline: none;
@@ -194,7 +222,6 @@
         .counter-btn:hover {
             background-color: #d1d5db;
         }
-
         .toggle-container {
             display: flex;
             justify-content: center;
@@ -202,20 +229,17 @@
             gap: 1rem;
             margin-top: 1rem;
         }
-
         .switch {
             position: relative;
             display: inline-block;
             width: 32px;
             height: 16px;
         }
-
         .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
-
         .slider {
             position: absolute;
             cursor: pointer;
@@ -227,7 +251,6 @@
             transition: .4s;
             border-radius: 16px;
         }
-
         .slider:before {
             position: absolute;
             content: "";
@@ -239,15 +262,12 @@
             transition: .4s;
             border-radius: 50%;
         }
-
         input:checked + .slider {
             background-color: #3b82f6;
         }
-
         input:checked + .slider:before {
             transform: translateX(16px);
         }
-
         .input-obtrusive input {
             background-color: #f3f4f6;
             color: #9ca3af;
@@ -261,91 +281,167 @@
 </head>
 <body>
 
-    <div class="calculator-card">
-        <h1 class="title">Additive Calculator</h1>
-        <p class="subtitle">Generate and calculate multiple samples automatically based on concentration ranges and dilution ratios.</p>
-
-        <div id="calculator-tab" class="tab-content">
-            <div class="border rounded-xl p-4 mb-4">
-                <div class="toggle-container">
-                    <span>Change protocol variables</span>
-                    <label class="switch">
-                        <input type="checkbox" id="editToggle" onchange="toggleEdit()">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div id="protocolVarsContainer" class="input-grid !grid-cols-2 mt-4 hidden">
-                    <div class="input-group">
-                        <label for="wetBCMass">Wet BC slurry volume (mL):</label>
-                        <input type="number" id="wetBCMass" value="100" class="rounded-lg">
-                    </div>
-                    <div class="input-group">
-                        <label for="bcCellulosePercent">Wet BC cellulose percentage (%):</label>
-                        <input type="number" id="bcCellulosePercent" value="2" class="rounded-lg">
-                    </div>
-                </div>
+    <!-- Access Gate -->
+    <div id="access-gate-overlay">
+        <div id="access-gate-modal">
+            <h1 class="title">Additives Calculator</h1>
+            <p class="subtitle" style="font-size: 1rem;">Enter your email to use the calculator.</p>
+            <div class="input-group mb-4">
+                <input type="email" id="email-input" placeholder="your email address" class="text-center">
             </div>
+            <button onclick="grantAccess()" class="btn w-full">Enter</button>
+            <p class="note" style="font-size: 0.75rem;">Don't worry, your email is not stored.</p>
+        </div>
+    </div>
 
-            <div class="border rounded-xl p-4 mb-4">
-                <div class="input-grid">
-                    <div class="input-group">
-                        <label for="numAdditives">Number of additives:</label>
-                        <div class="counter-input">
-                            <div class="counter-btn" onclick="updateAdditiveCount(-1)">-</div>
-                            <input type="number" id="numAdditives" value="1" min="0" onchange="generateAdditiveFields()" class="rounded-lg text-center" style="width: 4rem;">
-                            <div class="counter-btn" onclick="updateAdditiveCount(1)">+</div>
+    <!-- Main Calculator Content -->
+    <div id="main-container" class="main-container">
+        <div class="calculator-card">
+            <h1 class="title">Additive Calculator</h1>
+            <p class="subtitle">Generate and calculate multiple samples automatically based on concentration ranges and dilution ratios.</p>
+
+            <div id="calculator-tab" class="tab-content">
+                <div class="border rounded-xl p-4 mb-4">
+                    <div class="toggle-container">
+                        <span>Change protocol variables</span>
+                        <label class="switch">
+                            <input type="checkbox" id="editToggle" onchange="toggleEdit()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div id="protocolVarsContainer" class="input-grid !grid-cols-2 mt-4 hidden">
+                        <div class="input-group">
+                            <label for="wetBCMass">Wet BC slurry volume (mL):</label>
+                            <input type="number" id="wetBCMass" value="100" class="rounded-lg">
+                        </div>
+                        <div class="input-group">
+                            <label for="bcCellulosePercent">Wet BC cellulose percentage (%):</label>
+                            <input type="number" id="bcCellulosePercent" value="2" class="rounded-lg">
                         </div>
                     </div>
-                    <div class="input-group">
-                        <label for="bcWaterRatios">BC:Water ratios (comma-separated, e.g., 1:0, 1:1, 1:4):</label>
-                        <input type="text" id="bcWaterRatios" value="1:0, 1:1" class="rounded-lg">
+                </div>
+
+                <div class="border rounded-xl p-4 mb-4">
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="numAdditives">Number of additives:</label>
+                            <div class="counter-input">
+                                <div class="counter-btn" onclick="updateAdditiveCount(-1)">-</div>
+                                <input type="number" id="numAdditives" value="1" min="0" onchange="generateAdditiveFields()" class="rounded-lg text-center" style="width: 4rem;">
+                                <div class="counter-btn" onclick="updateAdditiveCount(1)">+</div>
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="bcWaterRatios">BC:Water ratios (comma-separated, e.g., 1:0, 1:1, 1:4):</label>
+                            <input type="text" id="bcWaterRatios" value="1:0, 1:1" class="rounded-lg">
+                        </div>
                     </div>
                 </div>
+
+                <div id="additiveInputContainer" class="additive-input-container"></div>
+                
+                <button onclick="generateAndCalculate()" class="btn w-full mt-8">Generate Combinations & Calculate</button>
+
+                <div id="percentageTableContainer" class="mt-8"></div>
+                
+                <div id="outputTableContainer"></div>
+                
+                <p class="note">This calculator assumes a slurry density of 1 g/mL.</p>
+                
+                <button id="showProtocolBtn" class="btn w-full mt-8" disabled onclick="showProtocol()">Show Protocol</button>
             </div>
 
-            <div id="additiveInputContainer" class="additive-input-container"></div>
-            
-            <button onclick="generateAndCalculate()" class="btn w-full mt-8">Generate Combinations & Calculate</button>
-
-            <div id="percentageTableContainer" class="mt-8"></div>
-            
-            <div id="outputTableContainer"></div>
-            
-            <p class="note">This calculator assumes a slurry density of 1 g/mL.</p>
-            
-            <button id="showProtocolBtn" class="btn w-full mt-8" disabled onclick="showProtocol()">Show Protocol</button>
-        </div>
-
-        <div id="protocol-tab" class="tab-content hidden">
-            <div class="protocol-content">
-                <h2 class="text-2xl font-bold mb-4 text-center">Protocol</h2>
-                <div id="protocol-output">
-                    <p class="text-center text-gray-500">
-                        Please generate a calculation first to see the protocol here.
-                    </p>
+            <div id="protocol-tab" class="tab-content hidden">
+                <div class="protocol-content">
+                    <h2 class="text-2xl font-bold mb-4 text-center">Protocol</h2>
+                    <div id="protocol-output">
+                        <p class="text-center text-gray-500">
+                            Please generate a calculation first to see the protocol here.
+                        </p>
+                    </div>
                 </div>
-            </div>
-            <div class="flex space-x-4 mt-8 justify-center items-center">
-                <button class="btn w-1/2" onclick="showCalculator()">Back to Calculator</button>
-                <div class="flex items-center space-x-2">
-                    <button class="btn" onclick="downloadProtocol()">Download</button>
-                    <label for="downloadFileType" class="sr-only">File Type</label>
-                    <select id="downloadFileType" class="px-4 py-2 border rounded-lg">
-                        <option value="pdf" selected>PDF</option>
-                        <option value="html">HTML</option>
-                        <option value="txt">Text</option>
-                    </select>
+                <div class="flex space-x-4 mt-8 justify-center items-center">
+                    <button class="btn w-1/2" onclick="showCalculator()">Back to Calculator</button>
+                    <div class="flex items-center space-x-2">
+                        <button class="btn" onclick="downloadProtocol()">Download</button>
+                        <label for="downloadFileType" class="sr-only">File Type</label>
+                        <select id="downloadFileType" class="px-4 py-2 border rounded-lg">
+                            <option value="pdf" selected>PDF</option>
+                            <option value="html">HTML</option>
+                            <option value="txt">Text</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        // --- ACCESS GATE LOGIC ---
+        const cookieName = 'lab_access_granted';
+        const mainContainer = document.getElementById('main-container');
+        const accessGateOverlay = document.getElementById('access-gate-overlay');
+
+        function checkCookieOnLoad() {
+            if (document.cookie.split(';').some((item) => item.trim().startsWith(cookieName + '='))) {
+                showContent();
+            } else {
+                mainContainer.classList.add('blurred');
+                accessGateOverlay.style.display = 'flex';
+            }
+        }
+
+        function grantAccess() {
+            const emailInput = document.getElementById('email-input');
+            const emailValue = emailInput.value.toLowerCase();
+            
+            // Basic regex for email format validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailValue)) {
+                showMessage("Enter a correct email address.");
+                emailInput.value = ''; // Reset input field
+                return;
+            }
+
+            const domainPart = emailValue.split('@')[1];
+
+            // Check if domain contains 'lab' and ends with '.co'
+            if (domainPart && domainPart.includes('lab') && domainPart.endsWith('.co')) {
+                // Set cookie to expire in 90 days
+                const d = new Date();
+                d.setTime(d.getTime() + (90 * 24 * 60 * 60 * 1000));
+                let expires = "expires=" + d.toUTCString();
+                document.cookie = cookieName + "=true;" + expires + ";path=/";
+                
+                showContent();
+            } else {
+                showMessage("Enter a correct email address.");
+                emailInput.value = ''; // Reset input field
+            }
+        }
+
+        function showContent() {
+            // Remove any leftover error messages upon success
+            const existingMessageBoxes = document.querySelectorAll('.error-message-overlay');
+            existingMessageBoxes.forEach(box => box.remove());
+
+            mainContainer.classList.remove('blurred');
+            accessGateOverlay.style.display = 'none';
+            // Initial setup for the calculator once access is granted
+            generateAdditiveFields(); 
+        }
+
+        // --- ORIGINAL CALCULATOR LOGIC ---
         let currentCalculation = {}; // To store data for filename generation
 
         function showMessage(message) {
+            // First, remove any existing message boxes to prevent stacking
+            const existingMessageBoxes = document.querySelectorAll('.error-message-overlay');
+            existingMessageBoxes.forEach(box => box.remove());
+
             const messageBox = document.createElement('div');
-            messageBox.className = 'fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50';
+            // Add a specific class for easy removal
+            messageBox.className = 'error-message-overlay fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50';
             messageBox.innerHTML = `
                 <div class="bg-white p-8 rounded-lg shadow-xl max-w-sm w-full">
                     <p class="text-center text-lg font-semibold text-red-600 mb-4">${message}</p>
@@ -849,11 +945,11 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', generateAdditiveFields);
+        // Run the access check when the document is fully loaded
+        document.addEventListener('DOMContentLoaded', checkCookieOnLoad);
     </script>
 
 </body>
 </html>
-
 
 
